@@ -1,5 +1,6 @@
 .App {
-  
+    margin: auto;
+    width: 1000dvh;
 }
 .material-icons{
     font-size: 21px;

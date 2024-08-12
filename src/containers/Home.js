@@ -117,9 +117,8 @@ export default function Home() {
               <LinkContainer to={`/notes/${noteId}`}>
                 <ListGroup.Item
                   action
-                  className={`custom-note-item ${
-                    highlightedNoteId.includes(noteId) ? 'highlighted' : ''
-                  }`}
+                  className={`custom-note-item ${highlightedNoteId.includes(noteId) ? 'highlighted' : ''
+                    }`}
                 >
                   <div className="note-content">
                     {attachmentURL && (
@@ -147,12 +146,12 @@ export default function Home() {
       </div>
     );
   }
-  
+
   function renderLander() {
     return (
       <div className="lander">
-        <h1>Scratch</h1>
-        <p className="text-muted">A simple note-taking app</p>
+        <h1>KEEPER APP</h1>
+        <p >(Website that stores documents and capable of making any changes on the document that needed)</p>
       </div>
     );
   }
@@ -161,7 +160,7 @@ export default function Home() {
     return (
       <div className="notes">
         <h2 className="pb-3 mt-4 mb-3 border-bottom">
-          <i className="material-icons">&#xe8cd;</i> Your Notes
+          <i className="material-icons">&#xe8cd;</i> Your Documents
         </h2>
         <div className="search-bar">
           <InputGroup>
