@@ -8,6 +8,7 @@ import { API, Storage } from "aws-amplify";
 import { BsPencilSquare } from "react-icons/bs";
 import { LinkContainer } from "react-router-bootstrap";
 import { Button, InputGroup, FormControl } from "react-bootstrap";
+import logo from "../Utils/Keeper App.png"
 
 export default function Home() {
   const [notes, setNotes] = useState([]);
@@ -150,6 +151,7 @@ export default function Home() {
   function renderLander() {
     return (
       <div className="lander">
+        <img src={logo} alt="logo" />
         <h1>KEEPER APP</h1>
         <p >(Website that stores documents and capable of making any changes on the document that needed)</p>
       </div>

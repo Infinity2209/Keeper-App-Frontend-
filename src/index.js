@@ -8,7 +8,10 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { Amplify } from 'aws-amplify';
 import config from './config';
 import { initSentry } from './libs/errorLib';
+import { GoogleOAuthProvider } from '@react-oauth/google'; // Import GoogleOAuthProvider
+
 initSentry();
+
 Amplify.configure({
   Auth: {
     mandatorySignIn: true,
@@ -32,15 +35,18 @@ Amplify.configure({
     ]
   }
 });
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
+const clientId = 'YOUR_GOOGLE_CLIENT_ID'; // Replace with your Google Client ID
+
 root.render(
   <React.StrictMode>
-    <Router>
-      <App />
-    </Router>
+    <GoogleOAuthProvider clientId={clientId}> {/* Wrap the app with GoogleOAuthProvider */}
+      <Router>
+        <App />
+      </Router>
+    </GoogleOAuthProvider>
   </React.StrictMode>,
 );
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+
 reportWebVitals();

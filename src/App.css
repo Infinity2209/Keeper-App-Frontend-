@@ -3,13 +3,18 @@
     width: 1000dvh;
 }
 .material-icons{
-    font-size: 21px;
     display: inline-flex;
-    padding: 2px;
+    color: #363636;
 }
 .fa{
     font-size: 26px;
 }
 #home{
-    font-size: 25px;
+    font-size: 40px;
+    color: #000;
+}
+.nav{
+    width: 100%;
+    border: 5px solid ; 
+    border-radius: 50px;  
 }

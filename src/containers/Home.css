@@ -1,12 +1,21 @@
 .Home .lander {
     padding: 80px 0;
     text-align: center;
+    justify-content: center;
 }
 
 .Home .lander h1 {
     font-family: "Open Sans", sans-serif;
     font-weight: 600;
     align-items: center;
+    margin: 2%;
+}
+
+.Home .lander img{
+    justify-content: space-around;
+    margin: 8%;
+    height: 200px;
+    width: 300px;
 }
 
 .notes {

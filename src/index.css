@@ -6,7 +6,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   -webkit-font-smoothing: antialiased;
   font-family: "Open Sans", sans-serif;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("./jess-bailey-UHqfUTDmdC4-unsplash.jpg");
+  background-color: black;
   background-repeat: no-repeat;
   background-size: cover;
   position: relative;

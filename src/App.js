@@ -70,7 +70,7 @@ function App() {
         <Navbar bg="light" expand="md" className="mb-3 nav">
           <LinkContainer to="/">
             <Navbar.Brand className="font-weight-bold text-muted">
-            <i class="material-icons" id="home">&#xe88a;</i>Keeper APP
+            <i class="material-icons" id="home">&#xe88a;</i>
             </Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle />
