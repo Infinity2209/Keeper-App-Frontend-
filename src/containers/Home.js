@@ -8,7 +8,7 @@ import { API, Storage } from "aws-amplify";
 import { BsPencilSquare } from "react-icons/bs";
 import { LinkContainer } from "react-router-bootstrap";
 import { Button, InputGroup, FormControl } from "react-bootstrap";
-import logo from "../Utils/Keeper App.png"
+import logo from "../Utils/Keeper App.png";
 
 export default function Home() {
   const [notes, setNotes] = useState([]);
@@ -49,22 +49,26 @@ export default function Home() {
   }, [highlightedNoteId]);
 
   async function loadNotes() {
-    const response = await API.get("notes", "/notes");
-    const notesWithAttachmentURL = await Promise.all(
-      response.map(async (note) => {
-        if (note.attachment) {
-          const attachmentURL = await Storage.vault.get(note.attachment);
-          return { ...note, attachmentURL };
-        }
-        return note;
-      })
-    );
-    const filteredNotes = notesWithAttachmentURL.filter((note) =>
-      note.content && note.content.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    try {
+      const response = await API.get('notes', "/notes");
+      const notesWithAttachmentURL = await Promise.all(
+        response.map(async (note) => {
+          if (note.attachment) {
+            const attachmentURL = await Storage.vault.get(note.attachment);
+            return { ...note, attachmentURL };
+          }
+          return note;
+        })
+      );
+      const filteredNotes = notesWithAttachmentURL.filter((note) =>
+        note.content && note.content.toLowerCase().includes(searchTerm.toLowerCase())
+      );
 
-    setFilteredNotes(filteredNotes);
-    return notesWithAttachmentURL;
+      setFilteredNotes(filteredNotes);
+      return notesWithAttachmentURL;
+    } catch (e) {
+      onError(e);
+    }
   }
 
   async function deleteNotesWithCommonWord() {
@@ -72,7 +76,7 @@ export default function Home() {
       note.content.toLowerCase().startsWith(searchTerm.toLowerCase())
     );
     const deletePromises = notesToDelete.map((note) =>
-      API.del("notes", `/notes/${note.noteId}`)
+      API.del('notes', `/notes/${note.noteId}`)
     );
 
     try {
@@ -109,6 +113,10 @@ export default function Home() {
   }
 
   function renderNotesList(notes) {
+    if (!notes || notes.length === 0) {
+      return <p>No notes found.</p>;
+    }
+
     return (
       <div className="notes-blocks">
         {notes
@@ -118,8 +126,7 @@ export default function Home() {
               <LinkContainer to={`/notes/${noteId}`}>
                 <ListGroup.Item
                   action
-                  className={`custom-note-item ${highlightedNoteId.includes(noteId) ? 'highlighted' : ''
-                    }`}
+                  className={`custom-note-item ${highlightedNoteId.includes(noteId) ? 'highlighted' : ''}`}
                 >
                   <div className="note-content">
                     {attachmentURL && (
@@ -153,7 +160,7 @@ export default function Home() {
       <div className="lander">
         <img src={logo} alt="logo" />
         <h1>KEEPER APP</h1>
-        <p >(Website that stores documents and capable of making any changes on the document that needed)</p>
+        <p>(Website that stores documents and is capable of making any changes needed)</p>
       </div>
     );
   }
@@ -162,7 +169,7 @@ export default function Home() {
     return (
       <div className="notes">
         <h2 className="pb-3 mt-4 mb-3 border-bottom">
-          <i className="material-icons">&#xe8cd;</i> Your Documents
+          <i className="material-icons-white">&#xe8cd;</i> Your Documents
         </h2>
         <div className="search-bar">
           <InputGroup>
@@ -197,7 +204,7 @@ export default function Home() {
           </LinkContainer>
         </div>
         <ListGroup ref={listGroupRef}>
-          {!isLoading && renderNotesList(notes)}
+          {!isLoading && renderNotesList(filteredNotes)}
         </ListGroup>
       </div>
     );

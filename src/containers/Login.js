@@ -9,7 +9,6 @@ import { onError } from "../libs/errorLib";
 import { useNavigate } from 'react-router-dom';
 import "./Login.css";
 import { Link } from "react-router-dom";
-import { GoogleLogin } from '@react-oauth/google';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
@@ -115,14 +114,6 @@ export default function Login() {
         >
           Login
         </LoaderButton>
-        <div className='mt-4'>
-          <GoogleLogin
-            onSuccess={handleGoogleLogin}
-            onError={() => {
-              console.log('Google Login Failed');
-            }}
-          />
-        </div>
       </Form>
     </div>
   );
