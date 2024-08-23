@@ -8,7 +8,6 @@ import { BrowserRouter as Router } from 'react-router-dom';
 import { Amplify } from 'aws-amplify';
 import config from './config';
 import { initSentry } from './libs/errorLib';
-import { GoogleOAuthProvider } from '@react-oauth/google'; // Import GoogleOAuthProvider
 
 initSentry();
 
@@ -37,15 +36,12 @@ Amplify.configure({
 });
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-const clientId = 'YOUR_GOOGLE_CLIENT_ID'; // Replace with your Google Client ID
 
 root.render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={clientId}> {/* Wrap the app with GoogleOAuthProvider */}
-      <Router>
-        <App />
-      </Router>
-    </GoogleOAuthProvider>
+    <Router>
+      <App />
+    </Router>
   </React.StrictMode>,
 );
 

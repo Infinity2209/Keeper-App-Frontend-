@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
-import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
 import Form from "react-bootstrap/Form";
 import LoaderButton from "../components/LoaderButton";
 import { useNavigate } from "react-router-dom";
@@ -69,71 +68,58 @@ export default function Signup() {
 
   return (
     <div className="Signup">
-      <GoogleOAuthProvider clientId="YOUR_GOOGLE_CLIENT_ID">
-        {newUser === null ? (
-          <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="email" size="lg">
-              <Form.Label>Email</Form.Label>
-              <Form.Control autoFocus type="email" value={fields.email} onChange={handleFieldChange} />
-            </Form.Group>
-            <Form.Group controlId="password" size="lg" style={{ position: "relative" }}>
-              <Form.Label>Password</Form.Label>
-              <Form.Control
-                type={showPassword ? "text" : "password"}
-                value={fields.password}
-                onChange={handleFieldChange}
-              />
-              <FontAwesomeIcon
-                icon={showPassword ? faEyeSlash : faEye}
-                onClick={togglePasswordVisibility}
-                className="password-toggle-icon"
-                style={{
-                  position: "absolute",
-                  top: "75%",
-                  right: "10px",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  zIndex: 2,
-                  color: "black" // Set the icon color to dark black
-                }}
-              />
-            </Form.Group>
-            <Form.Group controlId="confirmPassword" size="lg" style={{ position: "relative" }}>
-              <Form.Label>Confirm Password</Form.Label>
-              <Form.Control
-                type={showPassword ? "text" : "password"}
-                value={fields.confirmPassword}
-                onChange={handleFieldChange}
-              />
-            </Form.Group>
-            <LoaderButton block size="lg" type="submit" variant="success" isLoading={isLoading} disabled={!validateForm()}>
-              Signup
-            </LoaderButton>
-            <div className="mt-4">
-              <GoogleLogin
-                onSuccess={(credentialResponse) => {
-                  console.log(credentialResponse);
-                  // Handle successful login here
-                }}
-                onError={() => {
-                  console.log("Login Failed");
-                }}
-              />
-            </div>
-          </Form>
-        ) : (
-          <Form onSubmit={handleConfirmationSubmit}>
-            <Form.Group controlId="confirmationCode" size="lg">
-              <Form.Label>Confirmation Code</Form.Label>
-              <Form.Control autoFocus type="tel" onChange={handleFieldChange} value={fields.confirmationCode} />
-              <Form.Text muted>Please check your email for the code.</Form.Text>
-            </Form.Group>
-            <LoaderButton block size="lg" type="submit" variant="success" isLoading={isLoading} disabled={!validateConfirmationForm()}>
-              Verify
-            </LoaderButton>
-          </Form>
-        )}
-      </GoogleOAuthProvider>
+      {newUser === null ? (
+        <Form onSubmit={handleSubmit}>
+          <Form.Group controlId="email" size="lg">
+            <Form.Label>Email</Form.Label>
+            <Form.Control autoFocus type="email" value={fields.email} onChange={handleFieldChange} />
+          </Form.Group>
+          <Form.Group controlId="password" size="lg" style={{ position: "relative" }}>
+            <Form.Label>Password</Form.Label>
+            <Form.Control
+              type={showPassword ? "text" : "password"}
+              value={fields.password}
+              onChange={handleFieldChange}
+            />
+            <FontAwesomeIcon
+              icon={showPassword ? faEyeSlash : faEye}
+              onClick={togglePasswordVisibility}
+              className="password-toggle-icon"
+              style={{
+                position: "absolute",
+                top: "75%",
+                right: "10px",
+                transform: "translateY(-50%)",
+                cursor: "pointer",
+                zIndex: 2,
+                color: "black" // Set the icon color to dark black
+              }}
+            />
+          </Form.Group>
+          <Form.Group controlId="confirmPassword" size="lg" style={{ position: "relative" }}>
+            <Form.Label>Confirm Password</Form.Label>
+            <Form.Control
+              type={showPassword ? "text" : "password"}
+              value={fields.confirmPassword}
+              onChange={handleFieldChange}
+            />
+          </Form.Group>
+          <LoaderButton block size="lg" type="submit" variant="success" isLoading={isLoading} disabled={!validateForm()}>
+            Signup
+          </LoaderButton>
+        </Form>
+      ) : (
+        <Form onSubmit={handleConfirmationSubmit}>
+          <Form.Group controlId="confirmationCode" size="lg">
+            <Form.Label>Confirmation Code</Form.Label>
+            <Form.Control autoFocus type="tel" onChange={handleFieldChange} value={fields.confirmationCode} />
+            <Form.Text muted>Please check your email for the code.</Form.Text>
+          </Form.Group>
+          <LoaderButton block size="lg" type="submit" variant="success" isLoading={isLoading} disabled={!validateConfirmationForm()}>
+            Verify
+          </LoaderButton>
+        </Form>
+      )}
     </div>
   );
 }
