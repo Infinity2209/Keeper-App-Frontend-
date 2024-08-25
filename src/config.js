@@ -15,7 +15,7 @@ const config = {
     },
     social: {
         FB: "257199716923752"
-    }
+    },
 };
 
 export default config;

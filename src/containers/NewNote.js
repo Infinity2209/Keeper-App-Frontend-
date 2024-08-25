@@ -49,7 +49,7 @@ export default function NewNote() {
     }
   }
 
-  async function createNote(note) {
+  function createNote(note) {
     return API.post("notes", "/notes", {
       body: note
     });

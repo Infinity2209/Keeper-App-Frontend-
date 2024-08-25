@@ -39,32 +39,6 @@ export default function Login() {
     }
   }
 
-  async function handleFbLogin() {
-    setIsLoading(true);
-    try {
-      const response = await Auth.federatedSignIn({ provider: "Facebook" });
-      setIsLoading(false);
-      userHasAuthenticated(true);
-      navigate("/");
-    } catch (e) {
-      onError(e);
-      setIsLoading(false);
-    }
-  }
-
-  async function handleGoogleLogin(response) {
-    setIsLoading(true);
-    try {
-      const { credential } = response;
-      await Auth.federatedSignIn('google', { token: credential });
-      setIsLoading(false);
-      userHasAuthenticated(true);
-      navigate("/");
-    } catch (e) {
-      onError(e);
-      setIsLoading(false);
-    }
-  }
 
   function togglePasswordVisibility() {
     setShowPassword(!showPassword);
