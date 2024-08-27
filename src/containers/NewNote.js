@@ -10,12 +10,12 @@ import { useNavigate } from "react-router-dom";
 import { s3Upload } from "../libs/awsLib";
 
 export default function NewNote() {
-  const [noteForms, setNoteForms] = useState([{ attachment: null }]);
+  const [noteForms, setNoteForms] = useState([{ content: "", attachment: null }]);
   const navigate = useNavigate();
 
-  // function validateForm(content) {
-  //   return content.length > 0;
-  // }
+  function validateForm(content) {
+    return content.length > 0;
+  }
 
   function handleFileChange(event, formIndex) {
     const files = event.target.files;
@@ -67,15 +67,15 @@ export default function NewNote() {
 
   return (
     <div className="NewNote">
-      {noteForms.map((index) => (
+      {noteForms.map((noteForm, index) => (
         <Form key={index} onSubmit={(event) => handleSubmit(event, index)} className="note-form">
-          {/* <Form.Group controlId={`content-${index}`}>
+          <Form.Group controlId={`content-${index}`}>
             <Form.Control
               value={noteForm.content}
               as="textarea"
               onChange={(event) => handleFormContentChange(event, index)}
             />
-          </Form.Group> */}
+          </Form.Group>
           <Form.Group controlId={`file-${index}`}>
             <Form.Label>Attachment</Form.Label>
             <Form.Control onChange={(event) => handleFileChange(event, index)} type="file" />
@@ -86,7 +86,7 @@ export default function NewNote() {
             size="lg"
             variant="primary"
             isLoading={false} // Set to appropriate isLoading state for each form
-            // disabled={!handleFileChange(noteForm.content)}
+            disabled={!validateForm(noteForm.content)}
           >
             Create
           </LoaderButton>
