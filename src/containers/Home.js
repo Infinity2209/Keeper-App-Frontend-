@@ -114,7 +114,7 @@ export default function Home() {
 
   function renderNotesList(notes) {
     if (!notes || notes.length === 0) {
-      return <p>No notes found.</p>;
+      return <p>No Docs found.</p>;
     }
 
     return (
@@ -199,7 +199,7 @@ export default function Home() {
         <div className="create-note-button-container">
           <LinkContainer to="/notes/new">
             <Button variant="success" className="create-note-button">
-              <BsPencilSquare size={17} /> Create a new note
+              <BsPencilSquare size={17} /> Upload a new file
             </Button>
           </LinkContainer>
         </div>
