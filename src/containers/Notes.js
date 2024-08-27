@@ -90,6 +90,7 @@ export default function Notes() {
             setIsDeleting(false);
         }
     }
+    
     return (
         <div className="Notes">
             {note && (
