@@ -1,7 +1,7 @@
 const config = {
     s3: {
         REGION: "us-east-1",
-        BUCKET: "keeper-app-uploads",
+        BUCKET: "keeper-app-bucket",
     },
     apiGateway: {
         REGION: "us-east-1",
