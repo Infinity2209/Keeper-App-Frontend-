@@ -1,21 +1,19 @@
 const config = {
     s3: {
         REGION: "us-east-1",
-        BUCKET: "keeper-app-bucket",
+        BUCKET: "notes-app2-uploads",
     },
     apiGateway: {
         REGION: "us-east-1",
-        URL: "https://s4an8nor94.execute-api.us-east-1.amazonaws.com/dev",
+        URL: "https://dqdc9xcpmi.execute-api.us-east-1.amazonaws.com/prod",
     },
     cognito: {
         REGION: "us-east-1",
-        USER_POOL_ID: "us-east-1_SfCeOQRGj",
-        APP_CLIENT_ID: "2cj6ijjro4uhdnpt6evtne8bmk",
-        IDENTITY_POOL_ID: "us-east-1:2c64df36-abb8-4e61-8cf7-cb26381a41a7",
+        USER_POOL_ID: "us-east-1_uN0bSBS7G",
+        APP_CLIENT_ID: "4jo2nu2m9da38k51jpchdh2oef",
+        IDENTITY_POOL_ID: "us-east-1:ff6b0a23-6450-40d6-b691-6c2b75e27961",
     },
-    social: {
-        FB: "257199716923752"
-    },
+    
 };
 
 export default config;

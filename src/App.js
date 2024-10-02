@@ -52,7 +52,7 @@ function App() {
         <Navbar bg="light" expand="md" className="mb-3 nav">
           <LinkContainer to="/">
             <Navbar.Brand className="font-weight-bold text-muted">
-            <i class="material-icons" id="home">&#xe88a;</i>
+            <i className="material-icons" id="home">&#xe88a;</i>
             </Navbar.Brand>
           </LinkContainer>
           <Navbar.Toggle />
@@ -61,14 +61,14 @@ function App() {
               {isAuthenticated ? (
                 <>
                   <LinkContainer to="/settings">
-                    <Nav.Link><i class="material-icons">&#xe8b8;</i>Settings</Nav.Link>
+                    <Nav.Link><i className="material-icons">&#xe8b8;</i>Settings</Nav.Link>
                   </LinkContainer>
-                  <Nav.Link onClick={handleLogout}><i class="fa">&#xf235;</i> Logout</Nav.Link>
+                  <Nav.Link onClick={handleLogout}><i className="fa">&#xf235;</i> Logout</Nav.Link>
                 </>
               ) : (
                 <>
                   <LinkContainer to="/signup">
-                    <Nav.Link><i class="fa">&#xf234;</i>  Signup</Nav.Link>
+                    <Nav.Link><i className="fa">&#xf234;</i>  Signup</Nav.Link>
                   </LinkContainer>
                   <LinkContainer to="/login">
                     <Nav.Link><FontAwesomeIcon icon={faUser} />  Login</Nav.Link>
