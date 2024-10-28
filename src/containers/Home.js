@@ -169,7 +169,7 @@ export default function Home() {
     return (
       <div className="notes">
         <h2 className="pb-3 mt-4 mb-3 border-bottom">
-          <i className="material-icons-white">&#xe8cd;</i> Your Documents
+        Your Documents
         </h2>
         <div className="search-bar">
           <InputGroup>
