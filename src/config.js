@@ -1,7 +1,7 @@
 const config = {
     s3: {
         REGION: "us-east-1",
-        BUCKET: "keeper-app-uploads",
+        BUCKET: "note-app-upload",
     },
     apiGateway: {
         REGION: "us-east-1",
@@ -9,9 +9,9 @@ const config = {
     },
     cognito: {
         REGION: "us-east-1",
-        USER_POOL_ID: "us-east-1_zMzb9U5gh", // Updated user pool ID
-        APP_CLIENT_ID: "4uk01j4dv37dvnpj3hoqq6gd58", // Updated app client ID
-        IDENTITY_POOL_ID: "us-east-1:b10469a8-f4d2-4d0c-8ae7-8b52ec0b742c",
+        USER_POOL_ID: "us-east-1_n2pzpQOcf", 
+        APP_CLIENT_ID: "691hh2hibv15ql73pd51ka4fpo", 
+        IDENTITY_POOL_ID: "us-east-1:cf8eea9d-10cc-42bc-ba78-b21b37dce85b",
     },
 };
 
