@@ -7,6 +7,7 @@ import LoaderButton from "../components/LoaderButton";
 import config from "../config";
 import "./Notes.css";
 import { s3Upload } from "../libs/awsLib";
+
 export default function Notes() {
     const file = useRef(null);
     const { id } = useParams();
@@ -15,6 +16,7 @@ export default function Notes() {
     const [content, setContent] = useState("");
     const [isDeleting, setIsDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
     useEffect(() => {
         function loadNote() {
             return API.get("notes", `/notes/${id}`);
@@ -23,9 +25,12 @@ export default function Notes() {
             try {
                 const note = await loadNote();
                 const { content, attachment } = note;
+
                 if (attachment) {
+                    // Get the signed S3 URL
                     note.attachmentURL = await Storage.vault.get(attachment);
                 }
+
                 setContent(content);
                 setNote(note);
             } catch (e) {
@@ -34,20 +39,21 @@ export default function Notes() {
         }
         onLoad();
     }, [id]);
+
     function validateForm() {
         return content.length > 0;
     }
-    function handleFileChange(event) {
-        file.current = event.target.files[0];
-    }
+
     function saveNote(note) {
         return API.put("notes", `/notes/${id}`, {
-            body: note
+            body: note,
         });
     }
+
     async function handleSubmit(event) {
         let attachment;
         event.preventDefault();
+
         if (file.current && file.current.size > config.MAX_ATTACHMENT_SIZE) {
             alert(
                 `Please pick a file smaller than ${config.MAX_ATTACHMENT_SIZE / 1000000
@@ -55,6 +61,7 @@ export default function Notes() {
             );
             return;
         }
+
         setIsLoading(true);
         try {
             if (file.current) {
@@ -62,7 +69,7 @@ export default function Notes() {
             }
             await saveNote({
                 content,
-                attachment: attachment || note.attachment
+                attachment: attachment || note.attachment,
             });
             navigate("/");
         } catch (e) {
@@ -70,9 +77,11 @@ export default function Notes() {
             setIsLoading(false);
         }
     }
+
     function deleteNote() {
         return API.del("notes", `/notes/${id}`);
     }
+
     async function handleDelete(event) {
         event.preventDefault();
         const confirmed = window.confirm(
@@ -81,6 +90,7 @@ export default function Notes() {
         if (!confirmed) {
             return;
         }
+
         setIsDeleting(true);
         try {
             await deleteNote();
@@ -90,36 +100,44 @@ export default function Notes() {
             setIsDeleting(false);
         }
     }
-    
+
+    const renderAttachment = () => {
+        if (note.attachmentURL) {
+            const cleanFilePath = note.attachmentURL.split('?')[0];
+            const fileExtension = cleanFilePath.split('.').pop().toLowerCase();
+            if (["jpg", "jpeg", "png", "svg"].includes(fileExtension)) {
+                return <img src={note.attachmentURL} alt="attachment" style={{ width: '100%', height: 'auto' }} />;
+            } else if (fileExtension === "pdf") {
+                return <embed src={note.attachmentURL} width="100%" height="500px" type="application/pdf" />;
+            } else if (["doc", "docx"].includes(fileExtension)) {
+                return <div>Word Document: <a href={note.attachmentURL} target="_blank" rel="noopener noreferrer">Open Document</a></div>;
+            } else if (["xls", "xlsx"].includes(fileExtension)) {
+                return <div>Excel File: <a href={note.attachmentURL} target="_blank" rel="noopener noreferrer">Open Excel</a></div>;
+            } else {
+                return <div>File type not supported or recognized.</div>;
+            }
+        }
+    };
+
     return (
         <div className="Notes">
             {note && (
                 <Form onSubmit={handleSubmit}>
-                    <Form.Group controlId="content">
-                        <Form.Control
-                            as="textarea"
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="file">
-                        <Form.Label>Attachment</Form.Label>
-                        {note.attachment && (
+                    <div className="flex flex-column">
+                        <Form.Group controlId="file">
+                            <Form.Label>Attachment</Form.Label>
                             <div>
-                                
-                                <p>
-                                    <a
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        href={note.attachmentURL}
-                                    >
-                                    <img src={note.attachmentURL} alt="Attachment" style={{ maxWidth: "50%", height: "auto" }}/>
-                                    </a>
-                                </p>
+                                {renderAttachment()}
                             </div>
-                        )}
-                        <Form.Control onChange={handleFileChange} type="file" />
-                    </Form.Group>
+                        </Form.Group>
+                        <Form.Group controlId="content">
+                            <Form.Control
+                                as="textarea"
+                                value={content}
+                                onChange={(e) => setContent(e.target.value)}
+                            />
+                        </Form.Group>
+                    </div>
                     <LoaderButton
                         block
                         size="lg"
@@ -127,7 +145,7 @@ export default function Notes() {
                         isLoading={isLoading}
                         disabled={!validateForm()}
                     >
-                        <i class="material-icons">&#xe161;</i> Save
+                        <i className="material-icons">&#xe161;</i> Save
                     </LoaderButton>
                     <LoaderButton
                         block
@@ -136,11 +154,10 @@ export default function Notes() {
                         onClick={handleDelete}
                         isLoading={isDeleting}
                     >
-                        <i class="material-icons">&#xe872;</i> Delete
+                        <i className="material-icons">&#xe872;</i> Delete
                     </LoaderButton>
                 </Form>
             )}
         </div>
     );
-
 }

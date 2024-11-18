@@ -9,6 +9,11 @@ import { BsPencilSquare } from "react-icons/bs";
 import { LinkContainer } from "react-router-bootstrap";
 import { Button, InputGroup, FormControl } from "react-bootstrap";
 import logo from "../Utils/Keeper App.png";
+import PDF from "../Utils/pdf image.png";
+import WORD from "../Utils/word img.jpg";
+import EXEL from "../Utils/exel image.png";
+import IMG from "../Utils/jpg-img.png";
+import PNG from "../Utils/png-img.png";
 
 export default function Home() {
   const [notes, setNotes] = useState([]);
@@ -117,6 +122,31 @@ export default function Home() {
       return <p>No Docs found.</p>;
     }
 
+    const typeOfFile = (file) => {
+      const cleanFilePath = file.split('?')[0];
+      const extension = cleanFilePath.split('.').pop().toLowerCase();
+      const imageTypes = ["jpg", "jpeg"];
+      const pngTypes = ["png", "svg"];
+      const pdftype = ["pdf"];
+      const docTypes = ["doc", "docx"];
+      const exelType = ["xls", "xlsx"];
+
+      console.log("extesion : ",extension);
+      if (imageTypes.includes(extension)) {
+        return IMG;
+      }else if (pngTypes.includes(extension)){
+        return PNG;
+      }else if (pdftype.includes(extension)) {
+        return PDF;
+      } else if (docTypes.includes(extension)) {
+        return WORD;
+      } else if (exelType.includes(extension)) {
+        return EXEL;
+      } else {
+        return "unknown";
+      }
+    }
+
     return (
       <div className="notes-blocks">
         {notes
@@ -132,7 +162,7 @@ export default function Home() {
                     {attachmentURL && (
                       <div className="attachment">
                         <img
-                          src={attachmentURL}
+                          src={typeOfFile(attachmentURL)}
                           alt={`Note Attachment ${noteId}`}
                           className="attachment-image"
                         />
@@ -169,7 +199,7 @@ export default function Home() {
     return (
       <div className="notes">
         <h2 className="pb-3 mt-4 mb-3 border-bottom">
-        Your Documents
+          Your Documents
         </h2>
         <div className="search-bar">
           <InputGroup>

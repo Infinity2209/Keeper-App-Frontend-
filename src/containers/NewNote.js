@@ -55,9 +55,9 @@ export default function NewNote() {
     });
   }
 
-  function handleAddForm() {
-    setNoteForms((prevForms) => [...prevForms, { content: "", attachment: null }]);
-  }
+  // function handleAddForm() {
+  //   setNoteForms((prevForms) => [...prevForms, { content: "", attachment: null }]);
+  // }
 
   function handleFormContentChange(event, formIndex) {
     const updatedNoteForms = [...noteForms];
@@ -92,9 +92,9 @@ export default function NewNote() {
           </LoaderButton>
         </Form>
       ))}
-      <button className="add-note-button" onClick={handleAddForm}>
+      {/* <button className="add-note-button" onClick={handleAddForm}>
         Add New
-      </button>
+      </button> */}
     </div>
   );
 }
