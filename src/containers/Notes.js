@@ -6,6 +6,7 @@ import Form from "react-bootstrap/Form";
 import LoaderButton from "../components/LoaderButton";
 import { Storage } from 'aws-amplify';
 import "./Notes.css";
+import ToPdf from "../converter/ToPdf";
 
 export default function Notes() {
     const { id } = useParams();
@@ -189,7 +190,7 @@ export default function Notes() {
                             <h3>Choose an Option</h3>
                         </div>
                         <ul>
-                            <li className="howlist">Convert To PDF</li>
+                            <li className="howlist" onClick={() => {ToPdf(note)}}>Convert To PDF</li>
                             <li className="howlist">Convert To JPG/JPEG</li>
                             <li className="howlist">Convert To WORD</li>
                             <li className="howlist">Convert To EXCEL</li>
