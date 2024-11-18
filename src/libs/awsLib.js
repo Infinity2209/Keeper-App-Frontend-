@@ -2,12 +2,11 @@ import { Storage } from 'aws-amplify';
 
 export async function s3Upload(file) {
     const filename = `${Date.now()}-${file.name}`;
-    const filePath = `public/${filename}`;
+    const filePath = `${filename}`;
 
     try {
         const result = await Storage.put(filePath, file, {
             contentType: file.type,
-            level: 'public', // Set to public for unauthenticated access
         });
 
         console.log('File uploaded successfully:', result);
