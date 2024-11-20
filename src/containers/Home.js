@@ -14,6 +14,8 @@ import WORD from "../Utils/word img.jpg";
 import EXEL from "../Utils/exel image.png";
 import IMG from "../Utils/jpg-img.png";
 import PNG from "../Utils/png-img.png";
+import TXT from "../Utils/txt img.png";
+import HTML from "../Utils/html images.png";
 
 export default function Home() {
   const [notes, setNotes] = useState([]);
@@ -142,6 +144,10 @@ export default function Home() {
         return WORD;
       } else if (exelType.includes(extension)) {
         return EXEL;
+      }else if (extension === "txt") {
+        return TXT;
+      }else if (extension === "html") {
+        return HTML;
       } else {
         return "unknown";
       }

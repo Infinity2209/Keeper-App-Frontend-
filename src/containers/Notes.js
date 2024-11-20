@@ -14,9 +14,11 @@ export default function Notes() {
     const [note, setNote] = useState(null);
     const [content, setContent] = useState("");
     const [attachmentUrl, setAttachmentUrl] = useState(""); // Store the attachment URL
+    const [attachmentContent, setAttachmentContent] = useState(""); // Store the content of the .txt file
     const [isDeleting, setIsDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar visibility
+    const [convertedFile, setConvertedFile] = useState(null);
 
     // Fetch the note when the component mounts
     useEffect(() => {
@@ -28,6 +30,12 @@ export default function Notes() {
                 if (fetchedNote.attachment) {
                     const fileUrl = await Storage.get(fetchedNote.attachment);
                     setAttachmentUrl(fileUrl);
+
+                    // If the attachment is a .txt file, fetch its content
+                    if (fetchedNote.attachment.endsWith('.txt')) {
+                        const fileContent = await fetchTextFile(fetchedNote.attachment);
+                        setAttachmentContent(fileContent);
+                    }
                 }
 
                 setContent(fetchedNote.content);
@@ -40,6 +48,18 @@ export default function Notes() {
         loadNote();
     }, [id]);
 
+    // Fetch content of a .txt file from S3
+    const fetchTextFile = async (fileKey) => {
+        try {
+            const file = await Storage.get(fileKey, { download: true });
+            const text = await file.Body.text(); // Read the text content
+            return text;
+        } catch (error) {
+            console.error("Error fetching .txt file content:", error);
+            return "";
+        }
+    };
+
     // Validate the form
     function validateForm() {
         return content.length > 0;
@@ -51,6 +71,24 @@ export default function Notes() {
             body: note,
         });
     }
+
+    const convertToPDF = async (note) => {
+        try {
+            const updatedFile = await ToPdf(note); // Wait for the file conversion
+            await setConvertedFile(updatedFile); // Update the state
+            console.log("File converted successfully:", updatedFile); // Log the converted file directly
+            // await s3Upload(updatedFile)
+        } catch (error) {
+            console.error("Error converting file to PDF:", error);
+        }
+    };
+
+    // UseEffect to log state changes if needed
+    useEffect(() => {
+        if (convertedFile) {
+            console.log("Converted file to parse:", convertedFile);
+        }
+    }, [convertedFile]);
 
     // Handle form submission
     async function handleSubmit(event) {
@@ -116,7 +154,14 @@ export default function Notes() {
                 return <div>Excel File: <a href={attachmentUrl} target="_blank" rel="noopener noreferrer">Open Excel</a></div>;
             }
 
-            // Handle other file types (e.g., text, unknown)
+            // Handle Text files
+            else if (fileExtension === "txt") {
+                return (
+                    <pre className="text-file-content">{attachmentContent}</pre>
+                );
+            }
+
+            // Handle other file types (e.g., unknown)
             else {
                 return <div>File type not supported or recognized. <a href={attachmentUrl} target="_blank" rel="noopener noreferrer">Download File</a></div>;
             }
@@ -190,7 +235,7 @@ export default function Notes() {
                             <h3>Choose an Option</h3>
                         </div>
                         <ul>
-                            <li className="howlist" onClick={() => {ToPdf(note)}}>Convert To PDF</li>
+                            <li className="howlist" onClick={() => { convertToPDF(note) }}>Convert To PDF</li>
                             <li className="howlist">Convert To JPG/JPEG</li>
                             <li className="howlist">Convert To WORD</li>
                             <li className="howlist">Convert To EXCEL</li>

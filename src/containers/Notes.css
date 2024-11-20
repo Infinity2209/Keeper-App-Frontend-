@@ -39,7 +39,7 @@
 .sidebar li {
     padding: 10px;
     cursor: pointer;
-    justify-content:center;
+    justify-content: center;
     align-items: center;
 }
 
@@ -53,5 +53,19 @@
     border: solid black;
     background: #fad400;
     text-align: center;
-    justify-content:center;
+    justify-content: center;
+}
+
+.text-file-content {
+    background-color: white;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow-x: auto;
+    /* Allow horizontal scrolling if the text is too wide */
+    font-family: "Courier New", monospace;
+    /* Monospace font for text files */
+    white-space: pre-wrap;
+    /* Ensure long lines wrap instead of being cut off */
+    word-wrap: break-word;
 }
