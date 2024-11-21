@@ -7,6 +7,7 @@ import LoaderButton from "../components/LoaderButton";
 import { Storage } from 'aws-amplify';
 import "./Notes.css";
 import ToPdf from "../converter/ToPdf";
+import ToImg from "../converter/ToImg";
 
 export default function Notes() {
     const { id } = useParams();
@@ -80,6 +81,14 @@ export default function Notes() {
             // await s3Upload(updatedFile)
         } catch (error) {
             console.error("Error converting file to PDF:", error);
+        }
+    };
+
+    const convertToJpg = async (note) =>{
+        try {
+            await ToImg(note);
+        } catch (error) {
+            console.error("Error converting file to JPG:", error);
         }
     };
 
@@ -236,7 +245,7 @@ export default function Notes() {
                         </div>
                         <ul>
                             <li className="howlist" onClick={() => { convertToPDF(note) }}>Convert To PDF</li>
-                            <li className="howlist">Convert To JPG/JPEG</li>
+                            <li className="howlist" onClick={() => {convertToJpg(note)}}>Convert To JPG/JPEG</li>
                             <li className="howlist">Convert To WORD</li>
                             <li className="howlist">Convert To EXCEL</li>
                             <li className="howlist">Convert To PNG</li>

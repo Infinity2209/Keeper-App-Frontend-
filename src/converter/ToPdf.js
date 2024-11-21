@@ -2,6 +2,7 @@ import axios from "axios";
 import { Buffer } from "buffer";
 import { jsPDF } from "jspdf"; // Import jsPDF directly
 import config from "../config";
+import * as XLSX from "xlsx";
 
 const ToPdf = async (note) => {
     console.log("Data received:", note);
@@ -64,8 +65,54 @@ const ToPdf = async (note) => {
                             resolve(pdfBlob);
                         }
                     });
+                } else if (fileType === "docx" || fileType === "doc") {
+                    // Handle .docx file conversion
+                    const arrayBuffer = e.target.result;
+                    try {
+                        const mammoth = await import("mammoth"); // Dynamically import mammoth.js
+                        const { value: textContent } = await mammoth.extractRawText({ arrayBuffer });
+                        const pdf = new jsPDF();
+                        pdf.text(textContent, 10, 10);
+                        pdfBlob = pdf.output('blob');
+                        viewPdfInConsole(pdfBlob);
+                        resolve(pdfBlob);
+                    } catch (error) {
+                        console.error("Error processing .docx file:", error);
+                        reject(new Error("Failed to process .docx file"));
+                    }
+                } else if (fileType === "xls" || fileType === "xlsx") {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        let workbook = XLSX.read(arrayBuffer, { type: "array" }); // For .xlsx files
+
+                        // For .xls files, adjust the type
+                        if (fileType === "xls") {
+                            const data = new Uint8Array(arrayBuffer);
+                            workbook = XLSX.read(data, { type: "buffer" });
+                        }
+
+                        const pdf = new jsPDF();
+                        workbook.SheetNames.forEach((sheetName, index) => {
+                            if (index > 0) pdf.addPage(); // Add a new page for each sheet
+                            const sheet = workbook.Sheets[sheetName];
+                            const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Convert sheet to JSON array
+
+                            let y = 10; // Y position in the PDF
+                            data.forEach((row) => {
+                                const rowData = row.join("  |  "); // Format row data as a single string
+                                pdf.text(rowData, 10, y); // Add text to PDF
+                                y += 10; // Increment Y position for next row
+                            });
+                        });
+
+                        pdfBlob = pdf.output('blob');
+                        viewPdfInConsole(pdfBlob);
+                        resolve(pdfBlob);
+                    } catch (error) {
+                        console.error("Error during file conversion:", error);
+                        reject(new Error("Unsupported file type"));
+                    }
                 } else {
-                    alert("Unsupported file type. Please upload a .txt, .png, .jpg, or .html file.");
                     reject(new Error("Unsupported file type"));
                 }
             };
@@ -74,6 +121,8 @@ const ToPdf = async (note) => {
                 reader.readAsText(blob);
             } else if (fileType === "png" || fileType === "jpg" || fileType === "jpeg") {
                 reader.readAsDataURL(blob);
+            } else if (fileType === "docx") {
+                reader.readAsArrayBuffer(blob);
             } else {
                 reject(new Error("Unsupported file type"));
             }
