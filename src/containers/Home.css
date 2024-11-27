@@ -22,10 +22,6 @@
     margin-top: 20px;
 }
 
-.highlighted {
-    background-color: rgb(26, 137, 255);
-}
-
 .attachment {
     margin-bottom: 10px;
 }
@@ -34,6 +30,9 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
+    gap: 15px;
+    margin-left: 7%;
+    margin-top: 5%;
 }
 
 .note-block {
@@ -104,15 +103,15 @@
 }
 
 .create-note-button-container {
-    margin-top: 10px;
+    margin-top: 2%;
     display: flex;
     justify-content: flex-start;
 }
 
 .create-note-button {
     border-radius: 15px;
-    font-size: 20px;
-    padding: 5px 10px;
+    font-size: 25px;
+    padding: 5px 15px;
 }
 
 .search-bar input[type="text"] {

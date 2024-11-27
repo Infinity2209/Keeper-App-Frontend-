@@ -19,7 +19,7 @@ export default function Notes() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false); // State for sidebar visibility
-    const [convertedFile, setConvertedFile] = useState(null);
+    const [convertedFile, setConvertedFile] = useState("");
 
     // Fetch the note when the component mounts
     useEffect(() => {
@@ -84,9 +84,11 @@ export default function Notes() {
         }
     };
 
-    const convertToJpg = async (note) =>{
+    const convertToJpg = async (note) => {
         try {
-            await ToImg(note);
+            const updatedFile = await ToImg(note);
+            setConvertedFile(updatedFile);
+            console.log("File converted successfully to JPG:", updatedFile);
         } catch (error) {
             console.error("Error converting file to JPG:", error);
         }
@@ -210,7 +212,7 @@ export default function Notes() {
                             style={{ backgroundColor: 'yellow', color: 'black' }}
                             onClick={toggleSidebar} // Open Sidebar when clicked
                         >
-                            <i className="material-icons">autorenew</i> Convert
+                            <i className="material-icons">autorenew</i> Export As
                         </LoaderButton>
                         {/* Save Button */}
                         <LoaderButton
@@ -245,7 +247,7 @@ export default function Notes() {
                         </div>
                         <ul>
                             <li className="howlist" onClick={() => { convertToPDF(note) }}>Convert To PDF</li>
-                            <li className="howlist" onClick={() => {convertToJpg(note)}}>Convert To JPG/JPEG</li>
+                            <li className="howlist" onClick={() => { convertToJpg(note) }}>Convert To JPG/JPEG</li>
                             <li className="howlist">Convert To WORD</li>
                             <li className="howlist">Convert To EXCEL</li>
                             <li className="howlist">Convert To PNG</li>

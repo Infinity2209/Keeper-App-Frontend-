@@ -129,7 +129,6 @@ export default function Home() {
       const extension = cleanFilePath.split('.').pop().toLowerCase();
       const imageTypes = ["jpg", "jpeg"];
       const pngTypes = ["png", "svg"];
-      const pdftype = ["pdf"];
       const docTypes = ["doc", "docx"];
       const exelType = ["xls", "xlsx"];
 
@@ -138,7 +137,7 @@ export default function Home() {
         return IMG;
       }else if (pngTypes.includes(extension)){
         return PNG;
-      }else if (pdftype.includes(extension)) {
+      }else if (extension === "pdf") {
         return PDF;
       } else if (docTypes.includes(extension)) {
         return WORD;
@@ -162,7 +161,7 @@ export default function Home() {
               <LinkContainer to={`/notes/${noteId}`}>
                 <ListGroup.Item
                   action
-                  className={`custom-note-item ${highlightedNoteId.includes(noteId) ? 'highlighted' : ''}`}
+                  className={`custom-note-item`}
                 >
                   <div className="note-content">
                     {attachmentURL && (
@@ -235,7 +234,7 @@ export default function Home() {
         <div className="create-note-button-container">
           <LinkContainer to="/notes/new">
             <Button variant="success" className="create-note-button">
-              <BsPencilSquare size={17} /> Upload a new file
+              <BsPencilSquare size={30} /> Upload a new file
             </Button>
           </LinkContainer>
         </div>
