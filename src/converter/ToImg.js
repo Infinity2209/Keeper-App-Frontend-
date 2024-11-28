@@ -1,175 +1,111 @@
-import React, { useRef, useState } from "react";
 import axios from "axios";
 import { Buffer } from "buffer";
+import html2canvas from "html2canvas"; // Import html2canvas for HTML to image conversion
+import * as XLSX from "xlsx";
 import config from "../config";
-import * as pdfjsLib from 'pdfjs-dist';
 
-const ToImg = () => {
-    const imageOutputRef = useRef(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+const ToImg = async (note) => {
+    console.log("Data received:", note);
 
-    const viewImage = (imageDataUrl) => {
-        if (imageOutputRef.current) {
-            const imgElement = document.createElement("img");
-            imgElement.src = imageDataUrl;
-            imgElement.alt = "Converted Image";
-            imageOutputRef.current.innerHTML = ""; // Clear previous content
-            imageOutputRef.current.appendChild(imgElement);
-        }
-    };
+    let att = note.attachment;
+    console.log("Attachment (relative path):", att);
 
-    const downloadImage = (imageDataUrl, fileName = "converted-image.jpg") => {
-        const downloadLink = document.createElement("a");
-        downloadLink.href = imageDataUrl;
-        downloadLink.download = fileName;
-        downloadLink.click();
-    };
+    // Construct the full S3 URL using the relative path from the attachment
+    const fullUrl = `https://${config.s3.BUCKET}.s3.${config.s3.REGION}.amazonaws.com/public/${att}`;
+    console.log("Full S3 URL constructed:", fullUrl);
 
-    const convertToImg = async (note) => {
-        setIsLoading(true);
-        setErrorMessage("");
-        const att = note.attachment;
-        const fullUrl = `https://${config.s3.BUCKET}.s3.${config.s3.REGION}.amazonaws.com/public/${att}`;
-        const extensionOfAtt = att.split(".").pop().toLowerCase();
+    const extensionOfAtt = att.split(".").pop().toLowerCase();
+    console.log("File extension:", extensionOfAtt);
 
-        if (extensionOfAtt === "jpg" || extensionOfAtt === "jpeg") {
-            alert("The file is already in JPG/JPEG format.");
-            setIsLoading(false);
-            return;
-        }
+    if (extensionOfAtt === "jpg" || extensionOfAtt === "jpeg") {
+        alert("Your document is already in JPEG format");
+        return null;
+    }
 
-        try {
-            const fileResponse = await axios.get(fullUrl, { responseType: "arraybuffer" });
-            const fileBuffer = Buffer.from(fileResponse.data);
-            const blob = new Blob([fileBuffer], { type: "application/octet-stream" });
-            const reader = new FileReader();
+    try {
+        // Step 1: Download the file from S3
+        const fileResponse = await axios.get(fullUrl, { responseType: "arraybuffer" });
+        const fileBuffer = Buffer.from(fileResponse.data);
+        console.log("File downloaded successfully.", fileBuffer);
 
-            return new Promise((resolve, reject) => {
-                reader.onload = async function (e) {
-                    let imageDataUrl;
+        // Step 2: Convert the file to JPEG
+        const blob = new Blob([fileBuffer], { type: "application/octet-stream" });
+        const reader = new FileReader();
 
-                    if (extensionOfAtt === "txt") {
-                        const textContent = e.target.result;
-                        const imageData = createTextImage(textContent);
-                        imageDataUrl = imageData.toDataURL("image/jpeg");
-                    } else if (["png", "gif", "bmp", "webp", "pdf"].includes(extensionOfAtt)) {
-                        imageDataUrl = await convertImageOrPdfToJpeg(e.target.result, extensionOfAtt);
-                    } else {
-                        reject(new Error("Unsupported file type"));
-                    }
+        // Define the fileType outside the onload function
+        const fileType = att.split('.').pop().toLowerCase();
 
-                    viewImage(imageDataUrl);
-                    downloadImage(imageDataUrl);
-                    resolve(imageDataUrl);
-                };
+        return new Promise((resolve, reject) => {
+            reader.onload = async function (e) {
+                let imgDataUrl;
 
-                if (extensionOfAtt === "txt") {
-                    reader.readAsText(blob);
+                if (fileType === "txt") {
+                    // Handle text file conversion
+                    const text = e.target.result;
+                    const canvas = document.createElement("canvas");
+                    const ctx = canvas.getContext("2d");
+                    ctx.font = "16px Arial";
+                    ctx.fillText(text, 10, 50); // Add text to canvas
+                    imgDataUrl = canvas.toDataURL("image/jpeg");
+                    resolve(imgDataUrl);
+                } else if (fileType === "png") {
+                    // Convert PNG directly to JPEG
+                    imgDataUrl = e.target.result.replace("image/png", "image/jpeg");
+                    resolve(imgDataUrl);
+                } else if (fileType === "html") {
+                    // Handle HTML to JPEG
+                    const htmlContent = e.target.result;
+                    const tempDiv = document.createElement("div");
+                    tempDiv.innerHTML = htmlContent;
+                    document.body.appendChild(tempDiv);
+                    const canvas = await html2canvas(tempDiv);
+                    imgDataUrl = canvas.toDataURL("image/jpeg");
+                    document.body.removeChild(tempDiv); // Clean up temporary div
+                    resolve(imgDataUrl);
+                } else if (fileType === "xls" || fileType === "xlsx") {
+                    // Convert Excel sheet to JPEG
+                    const arrayBuffer = e.target.result;
+                    let workbook = XLSX.read(arrayBuffer, { type: "array" });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const data = XLSX.utils.sheet_to_html(firstSheet); // Convert sheet to HTML
+
+                    const tempDiv = document.createElement("div");
+                    tempDiv.innerHTML = data;
+                    document.body.appendChild(tempDiv);
+
+                    const canvas = await html2canvas(tempDiv);
+                    imgDataUrl = canvas.toDataURL("image/jpeg");
+
+                    document.body.removeChild(tempDiv);
+                    resolve(imgDataUrl);
                 } else {
-                    reader.readAsDataURL(blob);
+                    reject(new Error("Unsupported file type"));
                 }
-            });
-        } catch (error) {
-            console.error("Error processing the file:", error);
-            setErrorMessage("Error processing the file. Please try again.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
+            };
 
-    const createTextImage = (textContent) => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        const fontSize = 16;
-        const maxWidth = 500;
-        const lines = getTextLines(textContent, maxWidth, fontSize);
-
-        canvas.width = maxWidth + 20;
-        canvas.height = lines.length * (fontSize * 1.5) + 20;
-
-        ctx.font = `${fontSize}px Arial`;
-        ctx.fillStyle = "black";
-
-        let y = 20;
-        lines.forEach((line) => {
-            ctx.fillText(line, 10, y);
-            y += fontSize * 1.5;
-        });
-
-        return canvas;
-    };
-
-    const convertImageOrPdfToJpeg = async (fileData, extension) => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-
-        if (["png", "gif", "bmp", "webp"].includes(extension)) {
-            const img = new Image();
-            return new Promise((resolve, reject) => {
-                img.onload = () => {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    ctx.drawImage(img, 0, 0);
-                    resolve(canvas.toDataURL("image/jpeg"));
-                };
-                img.onerror = () => reject(new Error("Error loading image"));
-                img.src = fileData;
-            });
-        } else if (extension === "pdf") {
-            // Use pdf.js library to render PDF into a canvas
-            pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-            const loadingTask = pdfjsLib.getDocument({ data: fileData });
-            const pdf = await loadingTask.promise;
-            const page = await pdf.getPage(1); // Render the first page
-            const viewport = page.getViewport({ scale: 2 });
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-
-            await page.render({ canvasContext: ctx, viewport }).promise;
-            return canvas.toDataURL("image/jpeg");
-        }
-
-        throw new Error("Unsupported file type");
-    };
-
-    const getTextLines = (text, maxWidth, fontSize) => {
-        const lines = [];
-        const words = text.split(" ");
-        let currentLine = "";
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        ctx.font = `${fontSize}px Arial`;
-
-        words.forEach((word) => {
-            const width = ctx.measureText(currentLine + word).width;
-            if (width < maxWidth) {
-                currentLine += word + " ";
+            if (extensionOfAtt === "txt" || extensionOfAtt === "html") {
+                reader.readAsText(blob);
+            } else if (extensionOfAtt === "png") {
+                reader.readAsDataURL(blob);
+            } else if (extensionOfAtt === "xls" || extensionOfAtt === "xlsx") {
+                reader.readAsArrayBuffer(blob);
             } else {
-                lines.push(currentLine.trim());
-                currentLine = word + " ";
+                reject(new Error("Unsupported file type"));
             }
         });
-
-        if (currentLine.trim()) {
-            lines.push(currentLine.trim());
-        }
-
-        return lines;
-    };
-
-    return (
-        <div>
-            <button
-                onClick={() => convertToImg({ attachment: "path/to/your/file.txt" })}
-                disabled={isLoading}
-            >
-                {isLoading ? "Processing..." : "Convert File to JPG/JPEG"}
-            </button>
-            <div ref={imageOutputRef} id="image-output"></div>
-            {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-        </div>
-    );
+    } catch (error) {
+        console.error("Error processing the file:", error);
+        throw error;
+    }
 };
 
-export default ToImg;
+
+// Function to trigger file download
+const downloadImage = (imgDataUrl, filename = "converted_image.jpg") => {
+    const link = document.createElement("a");
+    link.href = imgDataUrl;
+    link.download = filename;
+    link.click(); // Simulate a click to trigger the download
+};
+
+export { ToImg, downloadImage };

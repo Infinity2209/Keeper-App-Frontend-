@@ -7,7 +7,9 @@ import LoaderButton from "../components/LoaderButton";
 import { Storage } from 'aws-amplify';
 import "./Notes.css";
 import ToPdf from "../converter/ToPdf";
-import ToImg from "../converter/ToImg";
+import { ToImg } from "../converter/ToImg";
+import ToWord from "../converter/ToWord";
+import ToPng from "../converter/ToPng";
 
 export default function Notes() {
     const { id } = useParams();
@@ -87,12 +89,42 @@ export default function Notes() {
     const convertToJpg = async (note) => {
         try {
             const updatedFile = await ToImg(note);
-            setConvertedFile(updatedFile);
-            console.log("File converted successfully to JPG:", updatedFile);
+            if (updatedFile) {
+                console.log("Converted to JPG/JPEG:", updatedFile);
+                setConvertedFile(updatedFile); // Set the converted file URL
+            } else {
+                console.error("Conversion failed.");
+            }
         } catch (error) {
-            console.error("Error converting file to JPG:", error);
+            console.error("Error converting file:", error);
         }
     };
+
+    const convertToWord = async (note) => {
+        try {
+            const updatedFile = await ToWord(note); // Wait for the file conversion (You need to implement ToWord function)
+            await setConvertedFile(updatedFile); // Update the state with the converted file
+            console.log("File converted successfully to Word:", updatedFile); // Log the converted file
+            // You can uncomment and add your S3 upload function if needed: await s3Upload(updatedFile);
+        } catch (error) {
+            console.error("Error converting file to Word:", error);
+        }
+    };
+    
+    const convertToPng = async (note) => {
+        try {
+            const updatedFile = await ToPng(note); // Wait for the file conversion (You may handle PNG conversion similarly to JPG)
+            if (updatedFile) {
+                console.log("Converted to PNG:", updatedFile);
+                setConvertedFile(updatedFile); // Set the converted PNG file URL
+            } else {
+                console.error("PNG conversion failed.");
+            }
+        } catch (error) {
+            console.error("Error converting file to PNG:", error);
+        }
+    };
+    
 
     // UseEffect to log state changes if needed
     useEffect(() => {
@@ -246,11 +278,10 @@ export default function Notes() {
                             <h3>Choose an Option</h3>
                         </div>
                         <ul>
-                            <li className="howlist" onClick={() => { convertToPDF(note) }}>Convert To PDF</li>
-                            <li className="howlist" onClick={() => { convertToJpg(note) }}>Convert To JPG/JPEG</li>
-                            <li className="howlist">Convert To WORD</li>
-                            <li className="howlist">Convert To EXCEL</li>
-                            <li className="howlist">Convert To PNG</li>
+                            <li className="howlist" onClick={() => convertToPDF(note)}>PDF</li>
+                            <li className="howlist" onClick={() => convertToJpg(note)}>JPG/JPEG</li>
+                            <li className="howlist" onClick={() => convertToWord(note)}>WORD</li>
+                            <li className="howlist" onClick={() => convertToPng(note)}>PNG</li>
                         </ul>
                     </div>
                 </div>
