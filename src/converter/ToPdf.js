@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Buffer } from "buffer";
-import { jsPDF } from "jspdf"; // Import jsPDF directly
+import { jsPDF } from "jspdf";
+import "jspdf-autotable"; // Import autoTable plugin
 import config from "../config";
 import * as XLSX from "xlsx";
 
@@ -35,10 +36,38 @@ const ToPdf = async (note) => {
 
         return new Promise((resolve, reject) => {
             reader.onload = async function (e) {
-                const fileType = att.split('.').pop().toLowerCase();
                 let pdfBlob;
 
-                if (fileType === "txt") {
+                if (fileType === "xls" || fileType === "xlsx") {
+                    // Handle Excel file conversion with table formatting
+                    try {
+                        const arrayBuffer = e.target.result;
+                        const workbook = XLSX.read(arrayBuffer, { type: "array" });
+                        const pdf = new jsPDF();
+
+                        workbook.SheetNames.forEach((sheetName, index) => {
+                            if (index > 0) pdf.addPage(); // Add a new page for each sheet
+                            const sheet = workbook.Sheets[sheetName];
+                            const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                            // Convert data to a table structure and add it to the PDF
+                            pdf.autoTable({
+                                head: [data[0]], // First row as headers
+                                body: data.slice(1), // Remaining rows as table body
+                                startY: 10, // Start position for the table
+                                theme: "grid", // Adds grid lines for table
+                                headStyles: { fillColor: [22, 160, 133] }, // Optional: Header styling
+                            });
+                        });
+
+                        pdfBlob = pdf.output('blob');
+                        viewPdfInConsole(pdfBlob);
+                        resolve(pdfBlob);
+                    } catch (error) {
+                        console.error("Error during Excel file conversion:", error);
+                        reject(new Error("Unsupported file type"));
+                    }
+                } else if (fileType === "txt") {
                     // Handle text file conversion
                     const text = e.target.result;
                     const pdf = new jsPDF();
@@ -80,38 +109,6 @@ const ToPdf = async (note) => {
                         console.error("Error processing .docx file:", error);
                         reject(new Error("Failed to process .docx file"));
                     }
-                } else if (fileType === "xls" || fileType === "xlsx") {
-                    try {
-                        const arrayBuffer = e.target.result;
-                        let workbook = XLSX.read(arrayBuffer, { type: "array" }); // For .xlsx files
-
-                        // For .xls files, adjust the type
-                        if (fileType === "xls") {
-                            const data = new Uint8Array(arrayBuffer);
-                            workbook = XLSX.read(data, { type: "buffer" });
-                        }
-
-                        const pdf = new jsPDF();
-                        workbook.SheetNames.forEach((sheetName, index) => {
-                            if (index > 0) pdf.addPage(); // Add a new page for each sheet
-                            const sheet = workbook.Sheets[sheetName];
-                            const data = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // Convert sheet to JSON array
-
-                            let y = 10; // Y position in the PDF
-                            data.forEach((row) => {
-                                const rowData = row.join("  |  "); // Format row data as a single string
-                                pdf.text(rowData, 10, y); // Add text to PDF
-                                y += 10; // Increment Y position for next row
-                            });
-                        });
-
-                        pdfBlob = pdf.output('blob');
-                        viewPdfInConsole(pdfBlob);
-                        resolve(pdfBlob);
-                    } catch (error) {
-                        console.error("Error during file conversion:", error);
-                        reject(new Error("Unsupported file type"));
-                    }
                 } else {
                     reject(new Error("Unsupported file type"));
                 }
@@ -121,7 +118,7 @@ const ToPdf = async (note) => {
                 reader.readAsText(blob);
             } else if (fileType === "png" || fileType === "jpg" || fileType === "jpeg") {
                 reader.readAsDataURL(blob);
-            } else if (fileType === "docx") {
+            } else if (fileType === "xls" || fileType === "xlsx" || fileType === "docx" || fileType === "doc") {
                 reader.readAsArrayBuffer(blob);
             } else {
                 reject(new Error("Unsupported file type"));
@@ -136,8 +133,7 @@ const ToPdf = async (note) => {
 const viewPdfInConsole = (pdfBlob) => {
     const pdfUrl = URL.createObjectURL(pdfBlob);
     console.log("Converted PDF URL:", pdfUrl);
-    // Optionally, you can also open the PDF in a new tab
-    window.open(pdfUrl);
+    window.open(pdfUrl); // Open the generated PDF in a new tab
 };
 
 export default ToPdf;
